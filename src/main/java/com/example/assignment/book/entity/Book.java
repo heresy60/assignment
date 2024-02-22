@@ -2,15 +2,15 @@ package com.example.assignment.book.entity;
 
 import com.example.assignment.book.controller.request.BookRequest;
 import com.example.assignment.book.enums.RentalStatusType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(indexes = {
+        @Index(name = "idx_rental_price", columnList = "rentalPrice")
+})
 public class Book {
 
     @Id
@@ -35,6 +35,7 @@ public class Book {
     /**
      * 대여 상태
      */
+    @Enumerated(EnumType.STRING)
     private RentalStatusType rentalStatus = RentalStatusType.STORE;
 
     public Book(BookRequest request) {

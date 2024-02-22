@@ -1,7 +1,10 @@
 package com.example.assignment.book.controller;
 
 import com.example.assignment.book.controller.request.BookRequest;
+import com.example.assignment.book.entity.Book;
+import com.example.assignment.book.repository.BookRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +31,15 @@ class BookControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    @Autowired
+    BookRepository repository;
+
     private final String root = "/api/books";
+
+    @BeforeEach
+    void init() {
+        repository.deleteAll();
+    }
 
     @Test
     @DisplayName("도서 위탁 등록")
@@ -103,5 +114,33 @@ class BookControllerTest {
         noRentalPriceResult.andExpect(jsonPath("$.messages[0].message").value("대여 금액은 필수입니다."));
         noRentalPriceResult.andExpect(jsonPath("$.messages[0].field").value("rentalPrice"));
 
+    }
+
+    @Test
+    @DisplayName("대여 가능한 도서 목록 조회")
+    void findAll() throws Exception {
+
+        initBookData();
+
+        ResultActions resultOrderPrice = mockMvc.perform(MockMvcRequestBuilders.get(root).param("property", "price")
+                .param("direction", "ASC"));
+
+        resultOrderPrice.andExpect(status().isOk());
+        resultOrderPrice.andExpect(jsonPath("$.totalCount").value(49));
+        resultOrderPrice.andExpect(jsonPath("$.data[0].title").value("도서 명1"));
+
+        ResultActions resultOrderCreateDate = mockMvc.perform(MockMvcRequestBuilders.get(root).param("property", "createDate")
+                .param("direction", "DESC"));
+
+        resultOrderCreateDate.andExpect(status().isOk());
+        resultOrderCreateDate.andExpect(jsonPath("$.totalCount").value(49));
+        resultOrderCreateDate.andExpect(jsonPath("$.data[0].title").value("도서 명49"));
+    }
+
+    void initBookData() {
+
+        for (int i = 1; i < 50; i++) {
+            repository.save(new Book(new BookRequest("도서 명" + i, "9791161758213", 1600 + i)));
+        }
     }
 }
