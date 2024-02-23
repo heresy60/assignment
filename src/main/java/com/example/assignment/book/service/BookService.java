@@ -8,6 +8,7 @@ import com.example.assignment.book.enums.RentalStatusType;
 import com.example.assignment.book.repository.BookRepository;
 import com.example.assignment.global.controller.request.Paging;
 import com.example.assignment.global.controller.response.PageResponse;
+import com.example.assignment.global.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -48,5 +49,15 @@ public class BookService {
     public List<Book> findStoreTarget(LocalDateTime referenceDate) {
 
         return repository.findStoreTargetList(referenceDate);
+    }
+
+    @Transactional
+    public void rental(List<Long> idList) {
+
+        int rental = repository.rental(idList, LocalDateTime.now());
+
+        if (rental != idList.size()) {
+            throw new BadRequestException("일부 도서를 다른 사람이 대출을 진행했습니다. 확인 후 다시 시도해주세요.");
+        }
     }
 }

@@ -1,14 +1,18 @@
 package com.example.assignment.book.controller;
 
+import com.example.assignment.book.controller.request.BookRentalRequest;
 import com.example.assignment.book.controller.request.BookRequest;
 import com.example.assignment.book.controller.request.BookSorting;
 import com.example.assignment.book.controller.response.BookResponse;
 import com.example.assignment.book.service.BookService;
 import com.example.assignment.global.controller.request.Paging;
 import com.example.assignment.global.controller.response.PageResponse;
+import com.example.assignment.global.exception.response.BaseErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "도서 관련")
-@RequestMapping("/api/books")
+@RequestMapping("/api/consignment/books")
 public class BookController {
 
     private final BookService service;
@@ -49,5 +53,17 @@ public class BookController {
     public ResponseEntity<PageResponse<BookResponse>> findAll(@Validated Paging paging, @Validated BookSorting bookSorting) {
 
         return ResponseEntity.ok(service.findAll(paging, bookSorting));
+    }
+
+    @PostMapping("/rental")
+    @Operation(summary = "도서 대여", description = "도서 대여를 진행하는 API 입니다.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "정상적으로 대여가 진행되었습니다."),
+                    @ApiResponse(responseCode = "400", description = "대여 신청한 도서 중 일부 도서를 다른 사람이 대여 했습니다.", content = @Content(schema = @Schema(implementation = BaseErrorResponse.class))),
+            })
+    public ResponseEntity<Object> rental(@RequestBody BookRentalRequest request) {
+        service.rental(request.idList());
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -11,9 +11,4 @@ public class RentalInfo {
 
     private int rentalCount = 0;
     private LocalDateTime lastRentalDate;
-
-    public void renew() {
-        this.rentalCount++;
-        this.lastRentalDate = LocalDateTime.now();
-    }
 }

@@ -1,5 +1,6 @@
 package com.example.assignment.book.controller;
 
+import com.example.assignment.book.controller.request.BookRentalRequest;
 import com.example.assignment.book.controller.request.BookRequest;
 import com.example.assignment.book.entity.Book;
 import com.example.assignment.book.repository.BookRepository;
@@ -15,6 +16,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,7 +37,7 @@ class BookControllerTest {
     @Autowired
     BookRepository repository;
 
-    private final String root = "/api/books";
+    private final String root = "/api/consignment/books";
 
     @BeforeEach
     void init() {
@@ -137,8 +140,23 @@ class BookControllerTest {
         resultOrderCreateDate.andExpect(jsonPath("$.data[0].title").value("도서 명49"));
     }
 
-    void initBookData() {
+    @Test
+    @DisplayName("도서 대여")
+    void rental() throws Exception {
 
+        Book book1 = repository.save(new Book(new BookRequest("1", "9791161758213", 1600)));
+        Book book2 = repository.save(new Book(new BookRequest("1", "9791161758213", 1600)));
+        Book book3 = repository.save(new Book(new BookRequest("1", "9791161758213", 1600)));
+
+        ResultActions rentalResult = mockMvc.perform(MockMvcRequestBuilders.post(root + "/rental")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new BookRentalRequest(List.of(book1.getId(), book2.getId(), book3.getId())))));
+
+        rentalResult.andExpect(status().isNoContent());
+
+    }
+
+    void initBookData() {
         for (int i = 1; i < 50; i++) {
             repository.save(new Book(new BookRequest("도서 명" + i, "9791161758213", 1600 + i)));
         }
