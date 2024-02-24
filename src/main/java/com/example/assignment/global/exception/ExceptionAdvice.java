@@ -63,6 +63,13 @@ public class ExceptionAdvice {
 
         return new BaseErrorResponse(exception.getMessage());
     }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NotFoundException.class)
+    public BaseErrorResponse notFoundException(NotFoundException exception) {
+
+        return new BaseErrorResponse(exception.getMessage());
+    }
     
     /**
      * 잡지 못한 에러 처리를 위한 메소드

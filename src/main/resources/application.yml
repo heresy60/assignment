@@ -10,3 +10,6 @@ spring:
         default_batch_fetch_size: 100
     hibernate:
       ddl-auto: update
+
+tokenKey: QFUcPiVw73WbQZEZoyp9PyoadgEmxgQ4odhxYughebLsgGGG38qVNgPUmgvuiVFQaTaFM6HhUq7VVVUrGHLaRGovkAv6px8K9z8taFM6HhUq7VVVUrGHLaRGovkAv6px
+loginTokenExpirationMilliSecond: 3600000
