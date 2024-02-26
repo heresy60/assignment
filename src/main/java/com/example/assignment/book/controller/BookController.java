@@ -1,5 +1,6 @@
 package com.example.assignment.book.controller;
 
+import com.example.assignment.account.entity.Account;
 import com.example.assignment.book.controller.request.BookRentalRequest;
 import com.example.assignment.book.controller.request.BookRequest;
 import com.example.assignment.book.controller.request.BookSorting;
@@ -17,6 +18,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,12 +32,13 @@ public class BookController {
     private final BookService service;
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "도서 위탁", description = "위탁 도서 정보를 등록하는 API 입니다.",
             responses = {
                     @ApiResponse(responseCode = "201", description = "정상적으로 위탁 도서정보가 등록되었습니다.")
             })
-    public ResponseEntity<Void> consignment(@Validated @RequestBody BookRequest request) {
-        service.consignment(request);
+    public ResponseEntity<Void> consignment(@Validated @RequestBody BookRequest request, @AuthenticationPrincipal Account account) {
+        service.consignment(request, account);
 
         return ResponseEntity.status(201).build();
     }
@@ -56,13 +60,15 @@ public class BookController {
     }
 
     @PostMapping("/rental")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "도서 대여", description = "도서 대여를 진행하는 API 입니다.",
             responses = {
                     @ApiResponse(responseCode = "204", description = "정상적으로 대여가 진행되었습니다."),
                     @ApiResponse(responseCode = "400", description = "대여 신청한 도서 중 일부 도서를 다른 사람이 대여 했습니다.", content = @Content(schema = @Schema(implementation = BaseErrorResponse.class))),
             })
-    public ResponseEntity<Object> rental(@RequestBody BookRentalRequest request) {
-        service.rental(request.idList());
+    public ResponseEntity<Object> rental(@RequestBody BookRentalRequest request
+            , @AuthenticationPrincipal Account account) {
+        service.rental(request.idList(), account);
 
         return ResponseEntity.noContent().build();
     }
