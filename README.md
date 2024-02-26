@@ -49,5 +49,6 @@
 <br />
 
 ## 5. 프로젝트 실행 방법
-1. ./gradlew clean build 명령어로 프로젝트 빌드 진행
-2. docker-compose up 명령어로 프로젝트 Image 및 프로젝트 실행
+1. 프로젝트를 실행하는데 docker가 필요합니다.
+2. ./gradlew clean build 명령어로 프로젝트 빌드 진행
+3. docker-compose up 명령어로 프로젝트 Image 및 프로젝트 실행
