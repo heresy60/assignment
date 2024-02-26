@@ -22,7 +22,7 @@ public record BookResponse(
 
 ) {
     public BookResponse(Book book) {
-        this(book.getId(), book.getTitle(), book.getIsbn(), book.getRentalPrice(), new Consignor(""));
+        this(book.getId(), book.getTitle(), book.getIsbn(), book.getRentalPrice(), new Consignor(book.getConsignor().getUsername()));
     }
 }
 
