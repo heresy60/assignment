@@ -1,9 +1,13 @@
 package com.example.assignment.book.controller;
 
+import com.example.assignment.account.controller.request.SignupRequest;
+import com.example.assignment.account.entity.Account;
+import com.example.assignment.account.repository.AccountRepository;
 import com.example.assignment.book.controller.request.BookRentalRequest;
 import com.example.assignment.book.controller.request.BookRequest;
 import com.example.assignment.book.entity.Book;
 import com.example.assignment.book.repository.BookRepository;
+import com.example.assignment.security.service.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,21 +41,30 @@ class BookControllerTest {
     @Autowired
     BookRepository repository;
 
+    @Autowired
+    AccountRepository accountRepository;
+
+    @Autowired
+    TokenService tokenService;
+
     private final String root = "/api/consignment/books";
 
     @BeforeEach
     void init() {
         repository.deleteAll();
+        accountRepository.deleteAll();
     }
 
     @Test
     @DisplayName("도서 위탁 등록")
     void save() throws Exception {
 
+        Account account = accountRepository.save(new Account(new SignupRequest("홍길동", "ww@gmai.com", "010-1234-1234", "q12we3Q2")));
         BookRequest bookRequest = new BookRequest("자바 퍼시스턴스 프로그래밍 완벽 가이드", "9791158394769", 1500);
 
         ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post(root)
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + tokenService.generateLoginToken(account.getId()))
                 .content(objectMapper.writeValueAsString(bookRequest)));
 
         result.andExpect(status().isCreated());
@@ -144,12 +157,15 @@ class BookControllerTest {
     @DisplayName("도서 대여")
     void rental() throws Exception {
 
-        Book book1 = repository.save(new Book(new BookRequest("1", "9791161758213", 1600)));
-        Book book2 = repository.save(new Book(new BookRequest("1", "9791161758213", 1600)));
-        Book book3 = repository.save(new Book(new BookRequest("1", "9791161758213", 1600)));
+        Account account = accountRepository.save(new Account(new SignupRequest("홍길동", "ww@gmai.com", "010-1234-1234", "q12we3Q2")));
+        Book book1 = repository.save(new Book(new BookRequest("1", "9791161758213", 1600), account));
+        Book book2 = repository.save(new Book(new BookRequest("1", "9791161758213", 1600), account));
+        Book book3 = repository.save(new Book(new BookRequest("1", "9791161758213", 1600), account));
+        Account rentalUser = accountRepository.save(new Account(new SignupRequest("대여자", "ww2@gmai.com", "010-1235-1234", "q12we3Q2")));
 
         ResultActions rentalResult = mockMvc.perform(MockMvcRequestBuilders.post(root + "/rental")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + tokenService.generateLoginToken(rentalUser.getId()))
                 .content(objectMapper.writeValueAsString(new BookRentalRequest(List.of(book1.getId(), book2.getId(), book3.getId())))));
 
         rentalResult.andExpect(status().isNoContent());
@@ -157,8 +173,10 @@ class BookControllerTest {
     }
 
     void initBookData() {
+
+        Account account = accountRepository.save(new Account(new SignupRequest("홍길동", "ww@gmai.com", "010-1234-1234", "q12we3Q2")));
         for (int i = 1; i < 50; i++) {
-            repository.save(new Book(new BookRequest("도서 명" + i, "9791161758213", 1600 + i)));
+            repository.save(new Book(new BookRequest("도서 명" + i, "9791161758213", 1600 + i), account));
         }
     }
 }

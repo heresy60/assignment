@@ -19,6 +19,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     List<Book> findStoreTargetList(LocalDateTime referenceDate);
 
     @Modifying(clearAutomatically = true)
-    @Query("update Book book set book.rentalStatus = 'RENTAL', book.rentalInfo.rentalCount = book.rentalInfo.rentalCount+1, book.rentalInfo.lastRentalDate = ?2  where book.rentalStatus = 'STORE' and book.id in ?1")
-    int rental(List<Long> id, LocalDateTime rentalDate);
+    @Query("update Book book set book.rentalStatus = 'RENTAL', book.rentalInfo.rentalCount = book.rentalInfo.rentalCount+1,book.rentalInfo.lastRenter.id =?2, book.rentalInfo.lastRentalDate = ?3  where book.rentalStatus = 'STORE' and book.id in ?1")
+    int rental(List<Long> id, Long accountId, LocalDateTime rentalDate);
 }

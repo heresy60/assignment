@@ -1,5 +1,6 @@
 package com.example.assignment.book.entity;
 
+import com.example.assignment.account.entity.Account;
 import com.example.assignment.book.controller.request.BookRequest;
 import com.example.assignment.book.enums.RentalStatusType;
 import jakarta.persistence.*;
@@ -11,7 +12,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(indexes = {
-        @Index(name = "idx_rental_price", columnList = "rentalPrice")
+        @Index(name = "idx_rental_price", columnList = "rentalPrice"),
+        @Index(name = "idx_rental_count", columnList = "rentalCount"),
 })
 public class Book {
 
@@ -43,11 +45,16 @@ public class Book {
     @Embedded
     private RentalInfo rentalInfo;
 
-    public Book(BookRequest request) {
+    @ManyToOne
+    @JoinColumn(name = "consignorId")
+    private Account consignor;
+
+    public Book(BookRequest request, Account account) {
         this.title = request.title();
         this.isbn = request.isbn();
         this.rentalPrice = request.rentalPrice();
         this.rentalInfo = new RentalInfo();
+        this.consignor = account;
     }
 
     public void store() {

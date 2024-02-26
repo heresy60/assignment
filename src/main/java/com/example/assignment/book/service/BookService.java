@@ -1,5 +1,6 @@
 package com.example.assignment.book.service;
 
+import com.example.assignment.account.entity.Account;
 import com.example.assignment.book.controller.request.BookRequest;
 import com.example.assignment.book.controller.request.BookSorting;
 import com.example.assignment.book.controller.response.BookResponse;
@@ -24,9 +25,9 @@ public class BookService {
     private final BookRepository repository;
 
     @Transactional
-    public void consignment(BookRequest request) {
+    public void consignment(BookRequest request, Account account) {
 
-        Book book = new Book(request);
+        Book book = new Book(request, account);
 
         repository.save(book);
     }
@@ -52,9 +53,9 @@ public class BookService {
     }
 
     @Transactional
-    public void rental(List<Long> idList) {
+    public void rental(List<Long> idList, Account account) {
 
-        int rental = repository.rental(idList, LocalDateTime.now());
+        int rental = repository.rental(idList, account.getId(), LocalDateTime.now());
 
         if (rental != idList.size()) {
             throw new BadRequestException("일부 도서를 다른 사람이 대출을 진행했습니다. 확인 후 다시 시도해주세요.");
