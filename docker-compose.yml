@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  database:
+    container_name: mysql_db
+    image: mariadb:latest
+    environment:
+      MYSQL_DATABASE: assignment
+      MYSQL_ROOT_PASSWORD: 12341234
+    ports:
+      - "3306:3306"
+    command: ["--character-set-server=utf8mb4","--collation-server=utf8mb4_unicode_ci"]
+    networks:
+      - my_network
+
+  application:
+    build:
+      context: .
+      dockerfile: DockerFile
+    container_name: application
+    restart: on-failure
+    image: berry/assignment:latest
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://database:3306/assignment
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "12341234"
+    depends_on:
+      - database
+    networks:
+      - my_network
+
+networks:
+  my_network:
